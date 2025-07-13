@@ -20,16 +20,16 @@ return (
         <Sidebar 
           isOpen={sidebarOpen} 
           onClose={() => setSidebarOpen(false)} 
-        />
+/>
         
-        <div className="flex-1 flex flex-col lg:ml-64">
+        <div className="flex-1 flex flex-col">
           <Header 
             onMenuClick={() => setSidebarOpen(true)}
             title="SparkChat Hub"
           />
           
-          <main className="flex-1 overflow-y-auto pb-4">
-            <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+          <main className="flex-1 overflow-y-auto pb-4 lg:ml-64">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/users" element={<Users />} />
