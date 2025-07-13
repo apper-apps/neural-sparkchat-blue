@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/atoms/Card";
-import Button from "@/components/atoms/Button";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
 import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import { Card, CardContent } from "@/components/atoms/Card";
+import Empty from "@/components/ui/Empty";
+import Error from "@/components/ui/Error";
+import Loading from "@/components/ui/Loading";
+import Users from "@/components/pages/Users";
+import FormField from "@/components/molecules/FormField";
 import SearchBar from "@/components/molecules/SearchBar";
 import TableHeader from "@/components/molecules/TableHeader";
-import Loading from "@/components/ui/Loading";
-import Error from "@/components/ui/Error";
-import Empty from "@/components/ui/Empty";
-import ApperIcon from "@/components/ApperIcon";
 import userService from "@/services/api/userService";
 import planService from "@/services/api/planService";
-import { toast } from "react-toastify";
-
 const UsersTable = () => {
   const [users, setUsers] = useState([]);
   const [plans, setPlans] = useState([]);
@@ -20,7 +21,17 @@ const UsersTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState("createdAt");
   const [sortDirection, setSortDirection] = useState("desc");
-
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [formData, setFormData] = useState({
+    email: "",
+    currentPlanId: "",
+    status: "active"
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
   const loadData = async () => {
     try {
       setLoading(true);
@@ -67,8 +78,113 @@ const UsersTable = () => {
       toast.success("User activated successfully");
       loadData();
     } catch (err) {
-      toast.error("Failed to activate user");
+toast.error("Failed to activate user");
     }
+  };
+  const handleAddUser = () => {
+    setFormData({
+      email: "",
+      currentPlanId: "",
+      status: "active"
+    });
+    setFormErrors({});
+    setShowAddModal(true);
+  };
+
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
+    setFormData({
+      email: user.email,
+      currentPlanId: user.currentPlanId,
+      status: user.status
+    });
+    setFormErrors({});
+    setShowEditModal(true);
+    setOpenDropdown(null);
+  };
+
+  const handleViewUser = (user) => {
+    toast.info(`Viewing user: ${user.email}`);
+    setOpenDropdown(null);
+  };
+
+  const handleDeleteUser = async (user) => {
+    if (confirm(`Are you sure you want to delete user ${user.email}?`)) {
+      try {
+        await userService.delete(user.Id);
+        toast.success("User deleted successfully");
+        loadData();
+      } catch (err) {
+        toast.error("Failed to delete user");
+      }
+    }
+    setOpenDropdown(null);
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+    
+    if (!formData.currentPlanId) {
+      errors.currentPlanId = "Plan selection is required";
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setSubmitting(true);
+    
+    try {
+      if (showEditModal && selectedUser) {
+        await userService.update(selectedUser.Id, {
+          email: formData.email,
+          currentPlanId: parseInt(formData.currentPlanId),
+          status: formData.status
+        });
+        toast.success("User updated successfully");
+        setShowEditModal(false);
+      } else {
+        await userService.create({
+          email: formData.email,
+          currentPlanId: parseInt(formData.currentPlanId),
+          status: formData.status
+        });
+        toast.success("User created successfully");
+        setShowAddModal(false);
+      }
+      
+      loadData();
+      setSelectedUser(null);
+    } catch (err) {
+      toast.error(`Failed to ${showEditModal ? 'update' : 'create'} user`);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const closeModal = () => {
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setSelectedUser(null);
+    setFormData({
+      email: "",
+      currentPlanId: "",
+      status: "active"
+    });
+    setFormErrors({});
   };
 
   const getPlanName = (planId) => {
@@ -143,8 +259,8 @@ const UsersTable = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search users..."
                 className="w-64"
-              />
-              <Button>
+/>
+              <Button onClick={handleAddUser} className="bg-primary hover:bg-primary/90 transition-colors">
                 <ApperIcon name="Plus" className="w-4 h-4 mr-2" />
                 Add User
               </Button>
@@ -216,19 +332,201 @@ const UsersTable = () => {
                           <ApperIcon name="Play" className="w-4 h-4 mr-1" />
                           Activate
                         </Button>
-                      )}
-                      <Button variant="ghost" size="sm">
-                        <ApperIcon name="MoreHorizontal" className="w-4 h-4" />
-                      </Button>
+)}
+                      <div className="relative">
+                        <Button
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setOpenDropdown(openDropdown === user.Id ? null : user.Id)}
+                          className="hover:bg-gray-100 transition-colors"
+                        >
+                          <ApperIcon name="MoreHorizontal" className="w-4 h-4" />
+                        </Button>
+                        
+                        {openDropdown === user.Id && (
+                          <div className="absolute right-0 top-8 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                            <div className="py-1">
+                              <button
+                                onClick={() => handleViewUser(user)}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                              >
+                                <ApperIcon name="Eye" className="w-4 h-4 mr-2" />
+                                View Details
+                              </button>
+                              <button
+                                onClick={() => handleEditUser(user)}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                              >
+                                <ApperIcon name="Edit" className="w-4 h-4 mr-2" />
+                                Edit User
+                              </button>
+                              <button
+                                onClick={() => handleDeleteUser(user)}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center"
+                              >
+                                <ApperIcon name="Trash2" className="w-4 h-4 mr-2" />
+                                Delete User
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+</div>
       </CardContent>
     </Card>
+
+    {/* Add User Modal */}
+    {showAddModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold font-manrope text-gray-900">Add New User</h2>
+              <Button variant="ghost" size="sm" onClick={closeModal}>
+                <ApperIcon name="X" className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <form onSubmit={handleFormSubmit} className="space-y-4">
+              <FormField
+                label="Email Address"
+                required
+                type="email"
+                placeholder="user@example.com"
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                error={formErrors.email}
+              />
+              
+              <FormField
+                label="Plan"
+                required
+                error={formErrors.currentPlanId}
+              >
+                <select
+                  value={formData.currentPlanId}
+                  onChange={(e) => setFormData(prev => ({ ...prev, currentPlanId: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="">Select a plan</option>
+                  {plans.map(plan => (
+                    <option key={plan.Id} value={plan.Id}>{plan.name}</option>
+                  ))}
+                </select>
+              </FormField>
+              
+              <FormField
+                label="Status"
+                required
+              >
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </FormField>
+              
+              <div className="flex justify-end space-x-3 pt-4">
+                <Button type="button" variant="outline" onClick={closeModal}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? "Creating..." : "Create User"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Edit User Modal */}
+    {showEditModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold font-manrope text-gray-900">Edit User</h2>
+              <Button variant="ghost" size="sm" onClick={closeModal}>
+                <ApperIcon name="X" className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <form onSubmit={handleFormSubmit} className="space-y-4">
+              <FormField
+                label="Email Address"
+                required
+                type="email"
+                placeholder="user@example.com"
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                error={formErrors.email}
+              />
+              
+              <FormField
+                label="Plan"
+                required
+                error={formErrors.currentPlanId}
+              >
+                <select
+                  value={formData.currentPlanId}
+                  onChange={(e) => setFormData(prev => ({ ...prev, currentPlanId: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="">Select a plan</option>
+                  {plans.map(plan => (
+                    <option key={plan.Id} value={plan.Id}>{plan.name}</option>
+                  ))}
+                </select>
+              </FormField>
+              
+              <FormField
+                label="Status"
+                required
+              >
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </FormField>
+              
+              <div className="flex justify-end space-x-3 pt-4">
+                <Button type="button" variant="outline" onClick={closeModal}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? "Updating..." : "Update User"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Click outside to close dropdown */}
+    {openDropdown && (
+      <div 
+        className="fixed inset-0 z-5" 
+        onClick={() => setOpenDropdown(null)}
+      />
+)}
+    </>
   );
 };
 
