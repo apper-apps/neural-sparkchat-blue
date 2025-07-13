@@ -1,0 +1,74 @@
+[
+  {
+    "Id": 1,
+    "userId": 1,
+    "userEmail": "john.doe@example.com",
+    "amount": 49.99,
+    "status": "paid",
+    "paidAt": "2024-02-01T10:30:00Z",
+    "stripeInvoiceId": "in_1234567890"
+  },
+  {
+    "Id": 2,
+    "userId": 2,
+    "userEmail": "sarah.wilson@company.com",
+    "amount": 19.99,
+    "status": "paid",
+    "paidAt": "2024-02-02T14:15:00Z",
+    "stripeInvoiceId": "in_1234567891"
+  },
+  {
+    "Id": 3,
+    "userId": 3,
+    "userEmail": "mike.chen@startup.io",
+    "amount": 99.99,
+    "status": "failed",
+    "paidAt": null,
+    "stripeInvoiceId": "in_1234567892"
+  },
+  {
+    "Id": 4,
+    "userId": 4,
+    "userEmail": "emma.brown@enterprise.com",
+    "amount": 299.99,
+    "status": "paid",
+    "paidAt": "2024-02-03T09:45:00Z",
+    "stripeInvoiceId": "in_1234567893"
+  },
+  {
+    "Id": 5,
+    "userId": 5,
+    "userEmail": "alex.taylor@agency.com",
+    "amount": 49.99,
+    "status": "pending",
+    "paidAt": null,
+    "stripeInvoiceId": "in_1234567894"
+  },
+  {
+    "Id": 6,
+    "userId": 1,
+    "userEmail": "john.doe@example.com",
+    "amount": 49.99,
+    "status": "paid",
+    "paidAt": "2024-01-01T10:30:00Z",
+    "stripeInvoiceId": "in_1234567895"
+  },
+  {
+    "Id": 7,
+    "userId": 7,
+    "userEmail": "david.kim@techcorp.com",
+    "amount": 99.99,
+    "status": "paid",
+    "paidAt": "2024-02-04T16:20:00Z",
+    "stripeInvoiceId": "in_1234567896"
+  },
+  {
+    "Id": 8,
+    "userId": 8,
+    "userEmail": "rachel.martinez@marketing.com",
+    "amount": 49.99,
+    "status": "paid",
+    "paidAt": "2024-02-05T11:00:00Z",
+    "stripeInvoiceId": "in_1234567897"
+  }
+]

@@ -1,0 +1,52 @@
+{
+  "userGrowth": [
+    {
+      "date": "2024-01-01",
+      "newUsers": 12,
+      "totalUsers": 45
+    },
+    {
+      "date": "2024-01-08",
+      "newUsers": 18,
+      "totalUsers": 63
+    },
+    {
+      "date": "2024-01-15",
+      "newUsers": 25,
+      "totalUsers": 88
+    },
+    {
+      "date": "2024-01-22",
+      "newUsers": 30,
+      "totalUsers": 118
+    },
+    {
+      "date": "2024-01-29",
+      "newUsers": 22,
+      "totalUsers": 140
+    },
+    {
+      "date": "2024-02-05",
+      "newUsers": 28,
+      "totalUsers": 168
+    }
+  ],
+  "planDistribution": [
+    {
+      "planName": "Starter",
+      "userCount": 45
+    },
+    {
+      "planName": "Professional",
+      "userCount": 78
+    },
+    {
+      "planName": "Business",
+      "userCount": 32
+    },
+    {
+      "planName": "Enterprise",
+      "userCount": 13
+    }
+  ]
+}

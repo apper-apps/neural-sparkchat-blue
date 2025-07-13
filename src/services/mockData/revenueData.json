@@ -1,0 +1,50 @@
+[
+  {
+    "month": "Jan 2024",
+    "revenue": 15420
+  },
+  {
+    "month": "Feb 2024",
+    "revenue": 18650
+  },
+  {
+    "month": "Mar 2024",
+    "revenue": 22100
+  },
+  {
+    "month": "Apr 2024",
+    "revenue": 19800
+  },
+  {
+    "month": "May 2024",
+    "revenue": 25400
+  },
+  {
+    "month": "Jun 2024",
+    "revenue": 28900
+  },
+  {
+    "month": "Jul 2024",
+    "revenue": 32500
+  },
+  {
+    "month": "Aug 2024",
+    "revenue": 30200
+  },
+  {
+    "month": "Sep 2024",
+    "revenue": 35800
+  },
+  {
+    "month": "Oct 2024",
+    "revenue": 41200
+  },
+  {
+    "month": "Nov 2024",
+    "revenue": 38900
+  },
+  {
+    "month": "Dec 2024",
+    "revenue": 45600
+  }
+]

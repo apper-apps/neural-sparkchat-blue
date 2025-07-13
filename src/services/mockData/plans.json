@@ -1,0 +1,42 @@
+[
+  {
+    "Id": 1,
+    "name": "Starter Plan",
+    "price": 19.99,
+    "features": ["chat", "analytics"],
+    "messageLimit": 1000,
+    "isActive": true
+  },
+  {
+    "Id": 2,
+    "name": "Professional Plan",
+    "price": 49.99,
+    "features": ["chat", "api", "analytics", "priority"],
+    "messageLimit": 5000,
+    "isActive": true
+  },
+  {
+    "Id": 3,
+    "name": "Business Plan",
+    "price": 99.99,
+    "features": ["chat", "api", "analytics", "priority", "custom"],
+    "messageLimit": 15000,
+    "isActive": true
+  },
+  {
+    "Id": 4,
+    "name": "Enterprise Plan",
+    "price": 299.99,
+    "features": ["chat", "api", "analytics", "priority", "custom", "integrations"],
+    "messageLimit": 50000,
+    "isActive": true
+  },
+  {
+    "Id": 5,
+    "name": "Legacy Plan",
+    "price": 29.99,
+    "features": ["chat"],
+    "messageLimit": 2000,
+    "isActive": false
+  }
+]

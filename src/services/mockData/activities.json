@@ -1,0 +1,50 @@
+[
+  {
+    "Id": 1,
+    "type": "user_registered",
+    "description": "New user registered: rachel.martinez@marketing.com",
+    "timestamp": "2024-02-05T11:00:00Z"
+  },
+  {
+    "Id": 2,
+    "type": "payment_received",
+    "description": "Payment received: $49.99 from rachel.martinez@marketing.com",
+    "timestamp": "2024-02-05T11:05:00Z"
+  },
+  {
+    "Id": 3,
+    "type": "subscription_created",
+    "description": "New subscription: Professional Plan for david.kim@techcorp.com",
+    "timestamp": "2024-02-04T16:20:00Z"
+  },
+  {
+    "Id": 4,
+    "type": "payment_received",
+    "description": "Payment received: $99.99 from david.kim@techcorp.com",
+    "timestamp": "2024-02-04T16:25:00Z"
+  },
+  {
+    "Id": 5,
+    "type": "plan_created",
+    "description": "New plan created: Enterprise Plan",
+    "timestamp": "2024-02-03T14:30:00Z"
+  },
+  {
+    "Id": 6,
+    "type": "user_suspended",
+    "description": "User suspended: mike.chen@startup.io (payment failed)",
+    "timestamp": "2024-02-03T10:15:00Z"
+  },
+  {
+    "Id": 7,
+    "type": "payment_received",
+    "description": "Payment received: $299.99 from emma.brown@enterprise.com",
+    "timestamp": "2024-02-03T09:45:00Z"
+  },
+  {
+    "Id": 8,
+    "type": "user_registered",
+    "description": "New user registered: emma.brown@enterprise.com",
+    "timestamp": "2024-02-02T16:20:00Z"
+  }
+]
