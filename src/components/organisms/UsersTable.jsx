@@ -245,7 +245,8 @@ toast.error("Failed to activate user");
     );
   }
 
-  return (
+return (
+    <>
     <Card className="hover:shadow-xl transition-all duration-300">
       <CardContent className="p-0">
         <div className="p-6 border-b border-gray-200">
