@@ -16,19 +16,19 @@ const AppContent = () => {
   const { theme } = useTheme();
 return (
     <Router>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
         <Sidebar 
           isOpen={sidebarOpen} 
           onClose={() => setSidebarOpen(false)} 
         />
         
-        <div className="lg:pl-64">
+        <div className="flex-1 flex flex-col lg:ml-64">
           <Header 
             onMenuClick={() => setSidebarOpen(true)}
             title="SparkChat Hub"
-/>
+          />
           
-          <main className="pb-4">
+          <main className="flex-1 overflow-y-auto pb-4">
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
