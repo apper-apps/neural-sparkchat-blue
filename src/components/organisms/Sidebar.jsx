@@ -15,9 +15,9 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Desktop Sidebar */}
+{/* Desktop Sidebar */}
       <div className="hidden lg:block lg:w-64 lg:flex-shrink-0">
-        <div className="h-full bg-white border-r border-gray-200 shadow-sm">
+        <div className="h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
           <div className="p-6">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
@@ -39,11 +39,11 @@ const Sidebar = ({ isOpen, onClose }) => {
                   key={item.name}
                   to={item.href}
                   className={({ isActive }) =>
-                    cn(
+cn(
                       "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
                       isActive
                         ? "bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg"
-                        : "text-gray-700 hover:bg-surface hover:text-primary"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-surface dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary"
                     )
                   }
                 >
@@ -52,8 +52,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                       <ApperIcon
                         name={item.icon}
                         className={cn(
-                          "mr-3 h-5 w-5 transition-colors duration-200",
-                          isActive ? "text-white" : "text-gray-400 group-hover:text-primary"
+"mr-3 h-5 w-5 transition-colors duration-200",
+                          isActive ? "text-white" : "text-gray-400 dark:text-gray-500 group-hover:text-primary"
                         )}
                       />
                       {item.name}
@@ -72,8 +72,8 @@ const Sidebar = ({ isOpen, onClose }) => {
         isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
       )}>
         <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
-        <div className={cn(
-          "absolute left-0 top-0 h-full w-64 bg-white shadow-xl transition-transform duration-300",
+<div className={cn(
+          "absolute left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-xl transition-transform duration-300",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <div className="p-6">
@@ -86,11 +86,11 @@ const Sidebar = ({ isOpen, onClose }) => {
                   <h1 className="text-xl font-bold font-manrope bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
                     SparkChat
                   </h1>
-                  <p className="text-xs text-gray-500">Hub</p>
+<p className="text-xs text-gray-500 dark:text-gray-400">Hub</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
-                <ApperIcon name="X" className="w-5 h-5 text-gray-500" />
+              <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                <ApperIcon name="X" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
           </div>
@@ -103,11 +103,11 @@ const Sidebar = ({ isOpen, onClose }) => {
                   to={item.href}
                   onClick={onClose}
                   className={({ isActive }) =>
-                    cn(
+cn(
                       "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
                       isActive
                         ? "bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg"
-                        : "text-gray-700 hover:bg-surface hover:text-primary"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-surface dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary"
                     )
                   }
                 >
@@ -115,9 +115,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                     <>
                       <ApperIcon
                         name={item.icon}
-                        className={cn(
+className={cn(
                           "mr-3 h-5 w-5 transition-colors duration-200",
-                          isActive ? "text-white" : "text-gray-400 group-hover:text-primary"
+                          isActive ? "text-white" : "text-gray-400 dark:text-gray-500 group-hover:text-primary"
                         )}
                       />
                       {item.name}
