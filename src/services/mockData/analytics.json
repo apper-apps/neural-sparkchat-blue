@@ -44,9 +44,103 @@
       "planName": "Business",
       "userCount": 32
     },
-    {
+{
       "planName": "Enterprise",
       "userCount": 13
     }
-  ]
+  ],
+  "subscriberTrends": [
+    {
+      "date": "2024-01-01",
+      "newSubscribers": 8,
+      "totalSubscribers": 35,
+      "churnedSubscribers": 2,
+      "growthPercentage": 18.2
+    },
+    {
+      "date": "2024-01-08",
+      "newSubscribers": 12,
+      "totalSubscribers": 45,
+      "churnedSubscribers": 2,
+      "growthPercentage": 28.6
+    },
+    {
+      "date": "2024-01-15",
+      "newSubscribers": 18,
+      "totalSubscribers": 61,
+      "churnedSubscribers": 2,
+      "growthPercentage": 35.6
+    },
+    {
+      "date": "2024-01-22",
+      "newSubscribers": 22,
+      "totalSubscribers": 81,
+      "churnedSubscribers": 2,
+      "growthPercentage": 32.8
+    },
+    {
+      "date": "2024-01-29",
+      "newSubscribers": 16,
+      "totalSubscribers": 95,
+      "churnedSubscribers": 2,
+      "growthPercentage": 17.3
+    },
+    {
+      "date": "2024-02-05",
+      "newSubscribers": 20,
+      "totalSubscribers": 113,
+      "churnedSubscribers": 2,
+      "growthPercentage": 18.9
+    }
+  ],
+  "churnAnalysis": [
+    {
+      "month": "2024-01",
+      "churnRate": 4.2,
+      "churnedUsers": 6,
+      "totalUsers": 143,
+      "retentionRate": 95.8
+    },
+    {
+      "month": "2024-02",
+      "churnRate": 3.8,
+      "churnedUsers": 6,
+      "totalUsers": 158,
+      "retentionRate": 96.2
+    },
+    {
+      "month": "2023-12",
+      "churnRate": 5.1,
+      "churnedUsers": 7,
+      "totalUsers": 137,
+      "retentionRate": 94.9
+    },
+    {
+      "month": "2023-11",
+      "churnRate": 4.8,
+      "churnedUsers": 6,
+      "totalUsers": 125,
+      "retentionRate": 95.2
+    }
+  ],
+  "growthMetrics": {
+    "monthlyGrowthRate": 12.4,
+    "quarterlyGrowthRate": 34.7,
+    "yearOverYearGrowth": 156.3,
+    "averageChurnRate": 4.5,
+    "netGrowthRate": 7.9
+  },
+  "comparativeAnalysis": {
+    "currentMonth": {
+      "newSubscribers": 58,
+      "churnedSubscribers": 6,
+      "netGrowth": 52
+    },
+    "previousMonth": {
+      "newSubscribers": 46,
+      "churnedSubscribers": 7,
+      "netGrowth": 39
+    },
+    "growthComparison": "+33.3%"
+  }
 }

@@ -82,7 +82,7 @@ const Dashboard = () => {
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           title="Total Subscribers"
           value={metrics?.totalSubscribers || 0}
@@ -100,19 +100,19 @@ const Dashboard = () => {
           gradient="success"
         />
         <MetricCard
-          title="Active Plans"
-          value={metrics?.activePlans || 0}
-          change={metrics?.plansChange || "+0"}
-          changeType={metrics?.plansChangeType || "neutral"}
-          icon="Package"
-          gradient="secondary"
+          title="Subscriber Growth"
+          value={`${metrics?.subscriberGrowthRate || 0}%`}
+          change={metrics?.growthChange || "+0%"}
+          changeType={metrics?.growthChangeType || "positive"}
+          icon="TrendingUp"
+          gradient="accent"
         />
         <MetricCard
-          title="New Users Today"
-          value={metrics?.newUsersToday || 0}
-          change={metrics?.newUsersChange || "+0%"}
-          changeType={metrics?.newUsersChangeType || "neutral"}
-          icon="UserPlus"
+          title="Churn Rate"
+          value={`${metrics?.churnRate || 0}%`}
+          change={metrics?.churnChange || "-0%"}
+          changeType={metrics?.churnChangeType || "negative"}
+          icon="UserMinus"
           gradient="warning"
         />
       </div>
