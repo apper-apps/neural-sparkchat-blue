@@ -5,6 +5,7 @@ import FormField from "@/components/molecules/FormField";
 import Badge from "@/components/atoms/Badge";
 import ApperIcon from "@/components/ApperIcon";
 import { toast } from "react-toastify";
+import userService from "@/services/api/userService";
 
 const Settings = () => {
   const [webhookSettings, setWebhookSettings] = useState({
@@ -29,6 +30,21 @@ const Settings = () => {
     domain: "sparkchat.app",
     brandingEnabled: false
   });
+
+  // 2FA Security Settings State
+  const [securitySettings, setSecuritySettings] = useState({
+    twoFactorEnabled: false,
+    backupCodes: [],
+    totpSecret: null,
+    qrCodeData: null
+  });
+  
+  const [showSetup2FA, setShowSetup2FA] = useState(false);
+  const [showBackupCodes, setShowBackupCodes] = useState(false);
+  const [setupStep, setSetupStep] = useState(1); // 1: QR Code, 2: Verify, 3: Backup Codes
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
 
   const integrationEvents = {
     crm: [
@@ -189,8 +205,113 @@ const handleTestWebhook = async () => {
     toast.success("Email settings saved successfully");
   };
 
-  const handleSaveWorkspace = () => {
+const handleSaveWorkspace = () => {
     toast.success("Workspace settings saved successfully");
+  };
+
+  // 2FA Security Handlers
+  const handleEnable2FA = async () => {
+    try {
+      const setup = await userService.setup2FA();
+      setSecuritySettings({
+        ...securitySettings,
+        totpSecret: setup.secret,
+        qrCodeData: setup.qrCode
+      });
+      setShowSetup2FA(true);
+      setSetupStep(1);
+      toast.info("Scan the QR code with your authenticator app");
+    } catch (error) {
+      toast.error("Failed to initialize 2FA setup");
+    }
+  };
+
+  const handleVerifyTOTP = async () => {
+    if (!verificationCode || verificationCode.length !== 6) {
+      toast.error("Please enter a valid 6-digit verification code");
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      const result = await userService.verifyTOTP(securitySettings.totpSecret, verificationCode);
+      if (result.valid) {
+        setSetupStep(3);
+        const backupCodes = await userService.generateBackupCodes();
+        setSecuritySettings({
+          ...securitySettings,
+          twoFactorEnabled: true,
+          backupCodes: backupCodes
+        });
+        toast.success("2FA enabled successfully! Save your backup codes.");
+      } else {
+        toast.error("Invalid verification code. Please try again.");
+      }
+    } catch (error) {
+      toast.error("Verification failed. Please try again.");
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!window.confirm("Are you sure you want to disable two-factor authentication? This will make your account less secure.")) {
+      return;
+    }
+
+    try {
+      await userService.disable2FA();
+      setSecuritySettings({
+        twoFactorEnabled: false,
+        backupCodes: [],
+        totpSecret: null,
+        qrCodeData: null
+      });
+      toast.success("Two-factor authentication has been disabled");
+    } catch (error) {
+      toast.error("Failed to disable 2FA");
+    }
+  };
+
+  const handleGenerateNewBackupCodes = async () => {
+    if (!window.confirm("Generating new backup codes will invalidate all existing codes. Continue?")) {
+      return;
+    }
+
+    setIsGeneratingCodes(true);
+    try {
+      const newCodes = await userService.generateBackupCodes();
+      setSecuritySettings({
+        ...securitySettings,
+        backupCodes: newCodes
+      });
+      toast.success("New backup codes generated successfully");
+    } catch (error) {
+      toast.error("Failed to generate new backup codes");
+    } finally {
+      setIsGeneratingCodes(false);
+    }
+  };
+
+  const handleDownloadBackupCodes = () => {
+    const codesText = securitySettings.backupCodes.join('\n');
+    const blob = new Blob([`SparkChat Hub - Two-Factor Authentication Backup Codes\n\nGenerated: ${new Date().toLocaleString()}\n\n${codesText}\n\nKeep these codes safe! Each code can only be used once.`], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sparkchat-backup-codes.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Backup codes downloaded successfully");
+  };
+
+  const handleFinishSetup = () => {
+    setShowSetup2FA(false);
+    setSetupStep(1);
+    setVerificationCode("");
+    toast.success("Two-factor authentication is now active for your account");
   };
 
   return (
@@ -253,9 +374,301 @@ const handleTestWebhook = async () => {
               </Button>
             </div>
           </div>
+</CardContent>
+      </Card>
+
+      {/* Security Settings */}
+      <Card className="hover:shadow-xl transition-all duration-300">
+        <CardHeader>
+          <h3 className="text-lg font-semibold font-manrope text-gray-900">
+            Security Settings
+          </h3>
+          <p className="text-sm text-gray-600">
+            Enhance your account security with two-factor authentication
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {/* 2FA Status */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center">
+                <ApperIcon 
+                  name={securitySettings.twoFactorEnabled ? "Shield" : "ShieldAlert"} 
+                  className={`w-5 h-5 mr-3 ${
+                    securitySettings.twoFactorEnabled ? 'text-green-600' : 'text-yellow-600'
+                  }`} 
+                />
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900">Two-Factor Authentication</h4>
+                  <p className="text-sm text-gray-500">
+                    {securitySettings.twoFactorEnabled 
+                      ? "2FA is enabled and protecting your account" 
+                      : "Add an extra layer of security to your account"
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge 
+                  variant={securitySettings.twoFactorEnabled ? "success" : "warning"}
+                  className="px-3 py-1"
+                >
+                  {securitySettings.twoFactorEnabled ? "Enabled" : "Disabled"}
+                </Badge>
+                {securitySettings.twoFactorEnabled ? (
+                  <Button variant="outline" size="sm" onClick={handleDisable2FA}>
+                    <ApperIcon name="ShieldOff" className="w-4 h-4 mr-2" />
+                    Disable 2FA
+                  </Button>
+                ) : (
+                  <Button variant="primary" size="sm" onClick={handleEnable2FA}>
+                    <ApperIcon name="Shield" className="w-4 h-4 mr-2" />
+                    Enable 2FA
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Backup Codes Section */}
+            {securitySettings.twoFactorEnabled && (
+              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900">Backup Codes</h4>
+                    <p className="text-sm text-gray-600">
+                      Use these codes to access your account if you lose your authenticator device
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setShowBackupCodes(!showBackupCodes)}
+                    >
+                      <ApperIcon name={showBackupCodes ? "EyeOff" : "Eye"} className="w-4 h-4 mr-2" />
+                      {showBackupCodes ? "Hide" : "View"} Codes
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleDownloadBackupCodes}>
+                      <ApperIcon name="Download" className="w-4 h-4 mr-2" />
+                      Download
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleGenerateNewBackupCodes}
+                      disabled={isGeneratingCodes}
+                    >
+                      {isGeneratingCodes ? (
+                        <>
+                          <ApperIcon name="Loader2" className="w-4 h-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <ApperIcon name="RefreshCw" className="w-4 h-4 mr-2" />
+                          Generate New
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {showBackupCodes && (
+                  <div className="bg-white border rounded-lg p-4">
+                    <div className="grid grid-cols-2 gap-2 font-mono text-sm">
+                      {securitySettings.backupCodes.map((code, index) => (
+                        <div key={index} className="p-2 bg-gray-50 rounded border text-center">
+                          {code}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <div className="flex items-start">
+                        <ApperIcon name="AlertTriangle" className="w-4 h-4 text-yellow-600 mr-2 mt-0.5" />
+                        <div className="text-sm">
+                          <p className="font-medium text-yellow-800">Important:</p>
+                          <p className="text-yellow-700">Each backup code can only be used once. Store them securely!</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
+      {/* 2FA Setup Modal */}
+      {showSetup2FA && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Setup Two-Factor Authentication
+                </h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowSetup2FA(false)}
+                >
+                  <ApperIcon name="X" className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Step Indicator */}
+              <div className="flex items-center mb-6">
+                {[1, 2, 3].map((step) => (
+                  <div key={step} className="flex items-center">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                      setupStep >= step 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      {step}
+                    </div>
+                    {step < 3 && (
+                      <div className={`w-8 h-1 mx-2 ${
+                        setupStep > step ? 'bg-primary' : 'bg-gray-200'
+                      }`} />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Step 1: QR Code */}
+              {setupStep === 1 && (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Scan QR Code
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
+                    </p>
+                    
+                    {/* QR Code Placeholder */}
+                    <div className="bg-white border-2 border-gray-200 rounded-lg p-4 mx-auto w-48 h-48 flex items-center justify-center">
+                      <div className="text-center">
+                        <ApperIcon name="QrCode" className="w-16 h-16 text-gray-400 mx-auto mb-2" />
+                        <p className="text-xs text-gray-500">QR Code</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                      <p className="text-xs text-gray-600 font-medium mb-1">Manual Entry Key:</p>
+                      <code className="text-xs bg-white px-2 py-1 rounded border font-mono">
+                        {securitySettings.totpSecret}
+                      </code>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button onClick={() => setSetupStep(2)}>
+                      Next: Verify Code
+                      <ApperIcon name="ArrowRight" className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Verification */}
+              {setupStep === 2 && (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Enter Verification Code
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Enter the 6-digit code from your authenticator app
+                    </p>
+                  </div>
+                  
+                  <FormField label="Verification Code">
+                    <input
+                      type="text"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="000000"
+                      className="flex h-12 w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-2 text-center text-lg font-mono tracking-widest transition-all duration-200 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+                      maxLength="6"
+                    />
+                  </FormField>
+                  
+                  <div className="flex justify-between">
+                    <Button variant="outline" onClick={() => setSetupStep(1)}>
+                      <ApperIcon name="ArrowLeft" className="w-4 h-4 mr-2" />
+                      Back
+                    </Button>
+                    <Button 
+                      onClick={handleVerifyTOTP}
+                      disabled={isVerifying || verificationCode.length !== 6}
+                    >
+                      {isVerifying ? (
+                        <>
+                          <ApperIcon name="Loader2" className="w-4 h-4 mr-2 animate-spin" />
+                          Verifying...
+                        </>
+                      ) : (
+                        "Verify & Enable 2FA"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Backup Codes */}
+              {setupStep === 3 && (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <ApperIcon name="CheckCircle" className="w-6 h-6 text-green-600" />
+                    </div>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      2FA Enabled Successfully!
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Save these backup codes in a secure location. You can use them to access your account if you lose your authenticator device.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-gray-50 border rounded-lg p-4">
+                    <div className="grid grid-cols-2 gap-2 font-mono text-sm">
+                      {securitySettings.backupCodes.map((code, index) => (
+                        <div key={index} className="p-2 bg-white rounded border text-center">
+                          {code}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-start">
+                      <ApperIcon name="AlertTriangle" className="w-4 h-4 text-yellow-600 mr-2 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-medium text-yellow-800">Important:</p>
+                        <p className="text-yellow-700">Each code can only be used once. Download or write them down!</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <Button variant="outline" onClick={handleDownloadBackupCodes}>
+                      <ApperIcon name="Download" className="w-4 h-4 mr-2" />
+                      Download Codes
+                    </Button>
+                    <Button onClick={handleFinishSetup}>
+                      Complete Setup
+                      <ApperIcon name="Check" className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {/* Email Settings */}
       <Card className="hover:shadow-xl transition-all duration-300">
         <CardHeader>
